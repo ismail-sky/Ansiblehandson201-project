@@ -1,0 +1,23 @@
+- hosts: app
+  vars:
+    apachepakg: httpd
+    apacheconf: /etc/httpd/conf/
+    apacheindex: /var/www/html/
+  gather_facts: false
+  tasks:
+  - name: installing the package
+    yum: name={{ apachepakg }} state=present
+
+  - name: starting the service
+    service: name={{ apachepakg }} state=started
+
+  - name: copying the configuration file
+    copy: src=httpd.conf dest={{ apacheconf }}
+    notify:
+      - restart apache
+
+  - name: copy the index file with message
+    copy: src=index.html dest={{ apacheindex }}
+  handlers:
+    - name: restart apache
+      service: name={{ apachepakg }} state=restarted
